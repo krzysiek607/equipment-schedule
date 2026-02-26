@@ -173,6 +173,8 @@
       transition: background 0.15s; display: flex; align-items: center; gap: 4px;
     }
     .comment-display:hover { background: var(--surface); }
+    .clickable-cell { cursor: pointer; transition: color 0.15s; }
+    .clickable-cell:hover { color: var(--accent); }
     .comment-display.empty { color: #475569; font-style: italic; }
     .comment-input {
       background: var(--bg); border: 1px solid var(--accent); border-radius: 4px;
@@ -258,11 +260,11 @@ function saveComment(truckName, value) {
   localStorage.setItem('res-comments', JSON.stringify(comments));
 }
 
-function startEdit(truckName) {
-  const cell = document.getElementById('comment-' + CSS.escape(truckName));
+function startEdit(idx, truckName) {
+  const cell = document.getElementById('cmt-' + idx);
   if (!cell) return;
   const current = comments[truckName] || '';
-  cell.innerHTML = '<input class="comment-input" value="' + current.replace(/"/g, '&quot;') + '" />';
+  cell.innerHTML = '<input class="comment-input" value="' + current.replace(/"/g, '&amp;quot;') + '" />';
   const input = cell.querySelector('input');
   input.focus();
   input.addEventListener('blur', () => { saveComment(truckName, input.value); renderResources(); });
@@ -270,6 +272,38 @@ function startEdit(truckName) {
     if (e.key === 'Enter') { input.blur(); }
     if (e.key === 'Escape') { renderResources(); }
   });
+}
+
+function flipName(name) {
+  if (!name) return '-';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) return parts.slice(-1)[0] + ' ' + parts.slice(0,-1).join(' ');
+  return name;
+}
+
+function setResColumnFilter(key, value) {
+  if (key === 'available') {
+    const target = value === 'Yes' ? 'available' : 'unavailable';
+    if (resFilters.availability === target) { resFilters.availability = null; }
+    else { resFilters.availability = target; }
+    document.querySelectorAll('.res-filter').forEach(b => {
+      if (b.dataset.value === 'available' || b.dataset.value === 'unavailable') {
+        b.classList.toggle('active', resFilters.availability === b.dataset.value);
+      }
+    });
+  } else if (key === 'status') {
+    if (resFilters.status === value) { resFilters.status = null; }
+    else { resFilters.status = value; }
+    document.querySelectorAll('.res-filter').forEach(b => {
+      if (b.dataset.value !== 'available' && b.dataset.value !== 'unavailable') {
+        b.classList.toggle('active', resFilters.status === b.dataset.value);
+      }
+    });
+  } else if (key === 'driver') {
+    resFilters.search = value;
+    document.getElementById('resSearch').value = value;
+  }
+  renderResources();
 }
 
 const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -452,19 +486,20 @@ function renderResources() {
     return;
   }
   let h = '<table class="res-table"><thead><tr><th>Truck</th><th>Available</th><th>Status</th><th>Driver</th><th>Comments</th></tr></thead><tbody>';
-  items.forEach(i => {
+  items.forEach((i, idx) => {
     const sc = i.status ? 'res-status res-status-'+i.status.toLowerCase() : '';
     const tn = i.truckName||'-';
     const cmt = comments[tn] || '';
     const cmtHtml = cmt
-      ? '<div class="comment-display" onclick="startEdit(\'' + tn.replace(/'/g,"\\'") + '\')">' + cmt + '</div>'
-      : '<div class="comment-display empty" onclick="startEdit(\'' + tn.replace(/'/g,"\\'") + '\')">+ Add note</div>';
+      ? '<div class="comment-display" onclick="startEdit('+idx+',\''+tn.replace(/'/g,"\\'")+'\')">' + cmt + '</div>'
+      : '<div class="comment-display empty" onclick="startEdit('+idx+',\''+tn.replace(/'/g,"\\'")+'\')">' + '+ Add note</div>';
+    const availTxt = i.available ? 'Yes' : 'No';
     h += `<tr>
-      <td class="truck-name">${tn}</td>
-      <td><span class="avail-dot ${i.available?'yes':'no'}"></span> ${i.available?'Yes':'No'}</td>
-      <td>${i.status?'<span class="'+sc+'">'+i.status+'</span>':'-'}</td>
-      <td>${i.defaultDriver?'<span class="driver-name">'+i.defaultDriver+'</span>':'-'}</td>
-      <td class="comment-cell" id="comment-${tn}">${cmtHtml}</td>
+      <td class="truck-name">${flipName(tn)}</td>
+      <td class="clickable-cell" onclick="setResColumnFilter('available','${availTxt}')"><span class="avail-dot ${i.available?'yes':'no'}"></span> ${availTxt}</td>
+      <td class="clickable-cell" onclick="${i.status ? "setResColumnFilter('status','"+i.status+"')" : ''}">${i.status?'<span class="'+sc+'">'+i.status+'</span>':'-'}</td>
+      <td>${i.defaultDriver?'<span class="driver-name clickable-cell" onclick="setResColumnFilter(\'driver\',\''+i.defaultDriver.replace(/'/g,"\\'")+'\')">' + i.defaultDriver + '</span>':'-'}</td>
+      <td class="comment-cell" id="cmt-${idx}">${cmtHtml}</td>
     </tr>`;
   });
   h += '</tbody></table>';
