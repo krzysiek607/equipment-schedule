@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Equipment Schedule</title>
+  <title>Equipment Dashboard</title>
   <style>
     :root {
       --bg: #0f172a;
@@ -24,369 +24,218 @@
       --purple-dim: #2e1065;
       --cyan: #06b6d4;
     }
-
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
+      background: var(--bg); color: var(--text); min-height: 100vh;
     }
 
-    /* ─── Header ─── */
     .header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 14px 24px; display: flex; align-items: center; gap: 16px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; }
+    .header .stats { display: flex; gap: 16px; margin-left: auto; font-size: 13px; color: var(--text-muted); }
+    .header .stats span { display: flex; align-items: center; gap: 4px; }
+    .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    .columns { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 53px); }
+    .column { display: flex; flex-direction: column; overflow: hidden; }
+    .column + .column { border-left: 1px solid var(--border); }
+
+    .column-header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 600; position: sticky; top: 53px; z-index: 90;
+    }
+    .col-icon { font-size: 16px; }
+
+    .column-toolbar {
+      padding: 8px 16px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+      background: var(--surface); border-bottom: 1px solid var(--border);
     }
 
-    .header h1 {
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-
-    .header .stats {
-      display: flex;
-      gap: 16px;
-      margin-left: auto;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-
-    .header .stats span {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .header .stats .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    /* ─── Toolbar ─── */
-    .toolbar {
-      padding: 12px 24px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      align-items: center;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-    }
+    .column-content { flex: 1; overflow-y: auto; padding: 12px 16px; }
 
     .search-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 12px;
-      color: var(--text);
-      font-size: 13px;
-      width: 220px;
-      outline: none;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 6px 10px; color: var(--text); font-size: 12px; outline: none;
       transition: border-color 0.15s;
     }
-
     .search-box:focus { border-color: var(--accent); }
 
     .filter-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 14px;
-      color: var(--text-muted);
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.15s;
-      user-select: none;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+      padding: 5px 10px; color: var(--text-muted); font-size: 12px;
+      cursor: pointer; transition: all 0.15s; user-select: none;
     }
-
     .filter-btn:hover { border-color: var(--accent); color: var(--text); }
     .filter-btn.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-    .separator {
-      width: 1px;
-      height: 24px;
-      background: var(--border);
-      margin: 0 4px;
-    }
+    .separator { width: 1px; height: 20px; background: var(--border); margin: 0 2px; }
 
     .view-toggle {
-      margin-left: auto;
-      display: flex;
-      gap: 2px;
-      background: var(--bg);
-      border-radius: 6px;
-      padding: 2px;
+      margin-left: auto; display: flex; gap: 2px;
+      background: var(--bg); border-radius: 6px; padding: 2px;
     }
-
     .view-toggle button {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all 0.15s;
+      background: none; border: none; color: var(--text-muted);
+      padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; transition: all 0.15s;
     }
+    .view-toggle button.active { background: var(--surface); color: var(--text); }
 
-    .view-toggle button.active {
-      background: var(--surface);
-      color: var(--text);
-    }
-
-    /* ─── Content ─── */
-    .content { padding: 16px 24px; }
-
-    /* ─── Group headers ─── */
     .group-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 0 6px;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      user-select: none;
+      display: flex; align-items: center; gap: 8px; padding: 8px 0 4px;
+      font-size: 12px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none;
     }
-
     .group-header .count {
-      background: var(--surface);
-      padding: 1px 8px;
-      border-radius: 10px;
-      font-size: 11px;
-      font-weight: 500;
+      background: var(--surface); padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 500;
     }
-
-    .group-header .chevron {
-      transition: transform 0.2s;
-      font-size: 10px;
-    }
-
+    .group-header .chevron { transition: transform 0.2s; font-size: 10px; }
     .group-header.collapsed .chevron { transform: rotate(-90deg); }
 
-    /* ─── Card list ─── */
-    .card-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-
+    .card-list { display: flex; flex-direction: column; gap: 3px; margin-bottom: 10px; }
     .card {
-      display: grid;
-      grid-template-columns: 6px 1fr auto;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      transition: all 0.15s;
-      cursor: default;
+      display: grid; grid-template-columns: 5px 1fr auto;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden; transition: all 0.15s; cursor: default;
     }
-
-    .card:hover {
-      border-color: #475569;
-      background: var(--surface-hover);
-    }
-
-    .card .status-bar {
-      border-radius: 8px 0 0 8px;
-    }
-
+    .card:hover { border-color: #475569; background: var(--surface-hover); }
+    .card .status-bar { border-radius: 6px 0 0 6px; }
     .card .status-bar.completed { background: var(--green); }
     .card .status-bar.arranged { background: var(--orange); }
     .card .status-bar.pending { background: var(--red); }
-
-    .card .body {
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-height: 48px;
-    }
-
+    .card .body { padding: 8px 12px; display: flex; align-items: center; gap: 10px; min-height: 40px; }
     .card .resource-name {
-      font-weight: 600;
-      font-size: 14px;
-      min-width: 120px;
+      font-weight: 600; font-size: 13px; min-width: 100px;
       font-family: 'Cascadia Code', 'Fira Code', monospace;
     }
-
     .card .appointment-type {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 500;
-      white-space: nowrap;
+      font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 500; white-space: nowrap;
     }
-
     .type-mot { background: var(--red-dim); color: var(--red); }
     .type-pmi { background: var(--accent-dim); color: var(--accent); }
     .type-tacho { background: var(--purple-dim); color: var(--purple); }
     .type-defect { background: var(--orange-dim); color: var(--orange); }
-
-    .card .branch {
-      font-size: 12px;
-      color: var(--text-muted);
-      min-width: 100px;
-    }
-
+    .card .branch { font-size: 11px; color: var(--text-muted); }
     .card .meta {
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      font-size: 12px;
-      color: var(--text-muted);
+      padding: 8px 12px; display: flex; align-items: center; gap: 14px;
+      font-size: 11px; color: var(--text-muted);
     }
-
-    .card .meta .date-label {
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-      color: #64748b;
-    }
-
+    .card .meta .date-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.3px; color: #64748b; }
     .card .meta .date-value {
-      font-size: 13px;
-      color: var(--text);
-      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 12px; color: var(--text); font-family: 'Cascadia Code', 'Fira Code', monospace;
     }
-
-    .card .badges {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
-
+    .card .badges { display: flex; gap: 5px; align-items: center; }
     .badge {
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
+      font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.3px;
     }
-
     .badge-completed { background: var(--green-dim); color: var(--green); }
     .badge-arranged { background: var(--orange-dim); color: var(--orange); }
     .badge-pending { background: var(--red-dim); color: var(--red); }
-
-    .resource-icon {
-      font-size: 18px;
-      width: 28px;
-      text-align: center;
-      flex-shrink: 0;
-    }
-
-    /* ─── Timeline view ─── */
-    .timeline-view .day-group {
-      margin-bottom: 16px;
-    }
-
-    .timeline-view .day-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--cyan);
-      padding: 8px 0 4px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 6px;
-    }
-
-    .timeline-view .day-label .weekday {
-      color: var(--text-muted);
-      font-weight: 400;
-      font-size: 12px;
-      margin-left: 6px;
-    }
-
-    /* ─── Overdue highlight ─── */
-    .card.overdue {
-      border-color: #991b1b;
-    }
-
-    .card.overdue .resource-name {
-      color: var(--red);
-    }
-
+    .resource-icon { font-size: 16px; width: 24px; text-align: center; flex-shrink: 0; }
+    .card.overdue { border-color: #991b1b; }
+    .card.overdue .resource-name { color: var(--red); }
     .overdue-badge {
-      background: var(--red);
-      color: #fff;
-      font-size: 9px;
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-weight: 700;
-      text-transform: uppercase;
+      background: var(--red); color: #fff; font-size: 8px; padding: 1px 4px;
+      border-radius: 3px; font-weight: 700; text-transform: uppercase;
     }
 
-    /* ─── Empty state ─── */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-muted);
+    .res-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .res-table th {
+      text-align: left; padding: 6px 10px; font-size: 10px; text-transform: uppercase;
+      letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; background: var(--bg); z-index: 5;
     }
+    .res-table td { padding: 6px 10px; border-bottom: 1px solid #1a2332; }
+    .res-table tr:hover td { background: var(--surface-hover); }
+    .res-table .truck-name {
+      font-weight: 600; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 12px;
+    }
+    .res-status {
+      font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .res-status-vor { background: var(--red-dim); color: var(--red); }
+    .res-status-sor { background: var(--orange-dim); color: var(--orange); }
+    .res-status-sub { background: var(--purple-dim); color: var(--purple); }
+    .avail-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+    .avail-dot.yes { background: var(--green); }
+    .avail-dot.no { background: var(--red); }
+    .driver-name { color: var(--cyan); font-size: 11px; }
+    .res-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); }
+    .res-stats span { display: flex; align-items: center; gap: 4px; }
 
-    .empty-state h3 { font-size: 16px; margin-bottom: 4px; }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-state h3 { font-size: 15px; margin-bottom: 4px; }
 
-    /* ─── Responsive ─── */
+    @media (max-width: 1024px) {
+      .columns { grid-template-columns: 1fr; }
+      .column + .column { border-left: none; border-top: 2px solid var(--accent); }
+    }
     @media (max-width: 768px) {
-      .card .body { flex-wrap: wrap; gap: 6px; }
-      .card .meta { flex-wrap: wrap; gap: 8px; }
-      .search-box { width: 100%; }
-      .toolbar { padding: 10px 12px; }
-      .content { padding: 10px 12px; }
+      .card .body { flex-wrap: wrap; gap: 4px; }
+      .card .meta { flex-wrap: wrap; gap: 6px; }
     }
   </style>
 </head>
 <body>
-
 <div class="header">
-  <h1>Equipment Schedule</h1>
+  <h1>Equipment Dashboard</h1>
   <div class="stats" id="stats"></div>
 </div>
-
-<div class="toolbar">
-  <input type="text" class="search-box" id="search" placeholder="Search vehicle, location...">
-
-  <div class="separator"></div>
-
-  <button class="filter-btn" data-filter="type" data-value="Truck">Truck</button>
-  <button class="filter-btn" data-filter="type" data-value="Trailer">Trailer</button>
-
-  <div class="separator"></div>
-
-  <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
-  <button class="filter-btn" data-filter="status" data-value="arranged">Arranged</button>
-  <button class="filter-btn" data-filter="status" data-value="completed">Completed</button>
-
-  <div class="separator"></div>
-
-  <select class="search-box" id="branchFilter" style="width:160px;cursor:pointer;">
-    <option value="">All locations</option>
-  </select>
-
-  <div class="view-toggle">
-    <button class="active" data-view="resource">By resource</button>
-    <button data-view="timeline">By date</button>
+<div class="columns">
+  <div class="column">
+    <div class="column-header"><span class="col-icon">&#128203;</span> Equipment Schedule</div>
+    <div class="column-toolbar">
+      <input type="text" class="search-box" id="eqSearch" placeholder="Search vehicle..." style="width:150px;">
+      <div class="separator"></div>
+      <button class="filter-btn" data-filter="type" data-value="Truck">Truck</button>
+      <button class="filter-btn" data-filter="type" data-value="Trailer">Trailer</button>
+      <div class="separator"></div>
+      <button class="filter-btn" data-filter="status" data-value="pending">Pending</button>
+      <button class="filter-btn" data-filter="status" data-value="arranged">Arranged</button>
+      <button class="filter-btn" data-filter="status" data-value="completed">Completed</button>
+      <div class="separator"></div>
+      <select class="search-box" id="branchFilter" style="width:130px;cursor:pointer;">
+        <option value="">All locations</option>
+      </select>
+      <div class="view-toggle">
+        <button class="active" data-view="resource">By resource</button>
+        <button data-view="timeline">By date</button>
+      </div>
+    </div>
+    <div class="column-content" id="eqContent"></div>
+  </div>
+  <div class="column">
+    <div class="column-header">
+      <span class="col-icon">&#128666;</span> Resource Sheet
+      <div class="res-stats" id="resStats" style="margin-left:auto;"></div>
+    </div>
+    <div class="column-toolbar">
+      <input type="text" class="search-box" id="resSearch" placeholder="Search truck..." style="width:150px;">
+      <div class="separator"></div>
+      <button class="filter-btn res-filter" data-value="available">Available</button>
+      <button class="filter-btn res-filter" data-value="unavailable">Unavailable</button>
+      <div class="separator"></div>
+      <button class="filter-btn res-filter" data-value="VOR">VOR</button>
+      <button class="filter-btn res-filter" data-value="SOR">SOR</button>
+      <button class="filter-btn res-filter" data-value="SUB">SUB</button>
+    </div>
+    <div class="column-content" id="resContent"></div>
   </div>
 </div>
-
-<div class="content" id="content"></div>
-
 <script>
-let DATA = [];
-let filters = { search: '', type: null, status: null, branch: '' };
+const EQ_DATA = [{"dueDate":null,"bookedDate":"2026-02-24","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":null,"bookedDate":"2026-02-24","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NK20XUG","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-09","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YJ18 RZC","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-01-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"49","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"161B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"AY70 SFF","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"49","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-07","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZL","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-12","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL565","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-15","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"ME16 CVH","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-21","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"WX22 SZV","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"179B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N369","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL511","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL502","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":"2026-02-19","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YN20SSX","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX20 RGZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL537","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL581","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"G411","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P12 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"161B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"GS401","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL547","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL245","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SFK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBN","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL476","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL573","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL514","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZC","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YFO","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WU19 YDS","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YT65 TZE","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21FPZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":null,"branch":"","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NK22ZYT","branch":"LONDON GATEWAY","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL455","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL295","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL559","branch":"SOUTHAMPTON","arranged":true,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL208","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL574","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL602","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL566","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"125B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"EVL90","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"131","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"MEGA001","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL282","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL501","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NK20XUG","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY16 LVV","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21FRN","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL574","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YJ19 SFY","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"WX22 SZE","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZT","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P444 BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YJC","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FPV","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SBX","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FHR","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBE","branch":"LONDON GATEWAY","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"V20BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"N60BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"SV66 JFG","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P100 BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"5B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"123B","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL535","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Truck","resourceName":"YD18 UBS","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"185","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"405B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"M60BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"168B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"168B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"58B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"V706","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL283","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SDO","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"31B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"429B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"167","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":"2026-02-05","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"Y100BBT","branch":"LONDON GATEWAY","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N364","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"V18 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"79B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBD","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"CN66 KWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N364","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N344","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N318","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"95B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"PO70 YOP","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"192","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"BK16 VWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NCU","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"192","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG68 AUF","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"75B","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":"2026-02-26","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"M60BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL595","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG66 HPY","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N356","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ70 AWP","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"Defect/Breakdown","resourceType":"Trailer","resourceName":"417B","branch":"KBC IMMINGHAM","arranged":true,"completed":false,"driver":"HARWOOD, MARK"},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL596","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL394","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R600BBT","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL476","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"166B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"100","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N312","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ70 AYB","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P12 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"504B","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL533","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL227","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL450","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R70BBT","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"T30BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"197B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"502B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL259","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL573","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZE","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"LM66 CKP","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"CN66 KWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ21 FSN","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"172B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"196B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"500B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL213","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL474","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"MA21 UCT","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"T30BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P33 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"160B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"182","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"141","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N334","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"M30 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"173B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"174B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"512B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"180","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL611","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P14BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG66 HPY","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"164B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"189B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"427B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"WX66 WHK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"EVL90","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N342","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ21FNW","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"505B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"CE69 YMY","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"WV65 YXY","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R666BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N322","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL229","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL496","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG67 DSY","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL276","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"PN67 HPL","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL475","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL281","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N356","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"YT15 FKO","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG66 HWO","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":"2026-02-27","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NJ70 AYB","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"MT5","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"503B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL461","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL529","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL467","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N373","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"124B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"192B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL391","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL232","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N310","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"160B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL261","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"507B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"88B","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N357","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"426B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"25B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"97","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL217","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZR","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N378","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"419B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL250","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL489","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N320","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL522","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"180","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"GL66 NHG","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N341","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"CK16 UCM","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"PO70 YRP","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBF","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZP","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FNU","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"MEGA002","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N338","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"GS403","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"LM66 CKC","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"110 LOW","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WU19 YBY","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG18 JNU","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"411B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NCE","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YJH","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZO","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"M777BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY16 LVU","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-04-17","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"LM66 CKP","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null}];
+const RES_DATA = [{"truckName":"DK64 OWE","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"BV65 JUE","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"DG18 JLX","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"KK17 BDZ","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"NJ70 AYG","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"NK65 MPO","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"NK65 LWD","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"WM15 BNY","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YF64 DXS","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YN64 WME","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"DG68 AUC","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"LM66 CKF","branch":"PURFLEET","available":false,"status":null,"defaultDriver":"Kuczynski, Slawomir"},{"truckName":"KV65 YCW","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YH14 XHY","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"HX64 RXG","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YN64 WGP","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"SV64 HTE","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"KV65 YCO","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"ME16 CVH","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"NK14 CEO","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YN64 WFJ","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"DG66 HWN","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"KV65 YCU","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"YN64 WFY","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"LM66 CJV","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"WX15 VFD","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"KU66 VEO","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"WV65 YYA","branch":"PURFLEET","available":false,"status":null,"defaultDriver":"Kruhliak, Oleksandr"},{"truckName":"NK20XUG","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"NJ21FRL","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"WX22 SYP","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"WX22SZD","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"WX22 SZL","branch":"PURFLEET","available":false,"status":"VOR","defaultDriver":null},{"truckName":"NJ21 EZU","branch":"PURFLEET","available":false,"status":null,"defaultDriver":null},{"truckName":"F1 KBC","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG17 BXC","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG17 BJZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG17 BJX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG18 JNJ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG67 DSX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG67 DSV","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG68 AUE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG68 AUF","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG68 AUH","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"KX66 YWB","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PN67 HHT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"Polski, Tadeusz"},{"truckName":"PN67 HJX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PO70 YPY","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PO70 YOK","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG18 JNU","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NBN","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NCE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YT15 FKO","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YT65 TZE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"KU17 TXA","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PN67 HPL","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"LM66 CKJ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"BV66 TWE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"BV66 TWG","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY17 TKZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX16 OVL","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"CK16 UCM","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NCC","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX17 YCA","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG66 HWO","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"SV14 NYX","branch":"PURFLEET","available":true,"status":"VOR","defaultDriver":null},{"truckName":"WX66 ZFN","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY16 LVU","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"LM66 CJZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YK17 LLG","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NBX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"Krysiak, Mariusz"},{"truckName":"YA17 NCX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YD67 JHH","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YC67 NXY","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WV65 BXA","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WN65 UNJ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"GN67 OTX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY16 LTX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NBF","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG66 HWY","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"KX66 YVT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"BK16 VWC","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"LM66 CKV","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WU67 XEB","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YA17 NCJ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PN67 HHO","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NK67 WCZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DG66 HWL","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ70 AXA","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ70 AXD","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DK70 YSB","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DK20 YDD","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY70 SBV","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY70 SFO","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DK20 YJH","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"Kiresztura, Waldemar"},{"truckName":"NJ21 FNF","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX20 RGZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DK70 YND","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ21 FNX","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ21FNK","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"GL66 NHK","branch":"PURFLEET","available":true,"status":"SOR","defaultDriver":null},{"truckName":"X7BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"Y900BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"ELSOM, SHANE"},{"truckName":"T30 BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"OVERTON, ANDREW"},{"truckName":"T40BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"Wozniak , Dariusz"},{"truckName":"R666BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"V60 BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"HARWOOD, MARK"},{"truckName":"V50 BBT","branch":"PURFLEET","available":true,"status":null,"defaultDriver":"CORBITT, BARRIE"},{"truckName":"NJ21 FNC","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX22SZP","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX22SZJ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"WX22SZR","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"PO70 YSE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"GN25XKL","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"GN25XKK","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"AY70SFE","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"DE70OCB","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"FJ21UJV","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ21FPZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ21FRU","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ21FNW","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"YK70HHS","branch":"PURFLEET","available":true,"status":"SUB","defaultDriver":null},{"truckName":"DG68AUC","branch":"PURFLEET","available":true,"status":"SUB","defaultDriver":null},{"truckName":"NA22 FVN","branch":"PURFLEET","available":true,"status":"SUB","defaultDriver":null},{"truckName":"ND21 AXZ","branch":"PURFLEET","available":true,"status":null,"defaultDriver":null},{"truckName":"NJ71BPZ","branch":"PURFLEET","available":true,"status":"SUB","defaultDriver":null},{"truckName":"NJ71BYP","branch":"PURFLEET","available":true,"status":"SUB","defaultDriver":null}];
+
+let eqFilters = { search: '', type: null, status: null, branch: '' };
 let currentView = 'resource';
 let collapsedGroups = new Set();
+let resFilters = { search: '', availability: null, status: null };
 
 const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -396,7 +245,6 @@ function getStatus(item) {
   if (item.arranged) return 'arranged';
   return 'pending';
 }
-
 function getTypeClass(type) {
   if (!type) return '';
   const t = type.toLowerCase();
@@ -406,257 +254,233 @@ function getTypeClass(type) {
   if (t.includes('defect') || t.includes('breakdown')) return 'type-defect';
   return 'type-pmi';
 }
-
 function isOverdue(item) {
-  const status = getStatus(item);
-  if (status === 'completed') return false;
+  if (getStatus(item) === 'completed') return false;
   const date = item.dueDate || item.bookedDate;
   return date && date < TODAY;
 }
-
 function formatDate(d) {
   if (!d) return '-';
-  const parts = d.split('-');
-  return `${parts[2]}.${parts[1]}`;
+  const p = d.split('-');
+  return p[2] + '.' + p[1];
 }
-
 function formatDateFull(d) {
   if (!d) return '';
   const dt = new Date(d + 'T00:00:00');
-  return `${d} ${WEEKDAYS[dt.getDay()]}`;
+  return d + ' ' + WEEKDAYS[dt.getDay()];
 }
 
-function applyFilters() {
-  return DATA.filter(item => {
-    if (filters.search) {
-      const s = filters.search.toLowerCase();
-      const match = [item.resourceName, item.branch, item.appointmentType, item.driver]
-        .filter(Boolean)
-        .some(v => v.toLowerCase().includes(s));
-      if (!match) return false;
+function applyEqFilters() {
+  return EQ_DATA.filter(item => {
+    if (eqFilters.search) {
+      const s = eqFilters.search.toLowerCase();
+      if (![item.resourceName, item.branch, item.appointmentType, item.driver]
+        .filter(Boolean).some(v => v.toLowerCase().includes(s))) return false;
     }
-    if (filters.type && item.resourceType !== filters.type) return false;
-    if (filters.status && getStatus(item) !== filters.status) return false;
-    if (filters.branch && item.branch !== filters.branch) return false;
+    if (eqFilters.type && item.resourceType !== eqFilters.type) return false;
+    if (eqFilters.status && getStatus(item) !== eqFilters.status) return false;
+    if (eqFilters.branch && item.branch !== eqFilters.branch) return false;
     return true;
   });
 }
 
-function renderStats(items) {
-  const total = items.length;
-  const completed = items.filter(i => getStatus(i) === 'completed').length;
-  const arranged = items.filter(i => getStatus(i) === 'arranged').length;
-  const pending = items.filter(i => getStatus(i) === 'pending').length;
-  const overdue = items.filter(i => isOverdue(i)).length;
-
-  document.getElementById('stats').innerHTML = `
-    <span><span class="dot" style="background:var(--green)"></span> Completed: ${completed}</span>
-    <span><span class="dot" style="background:var(--orange)"></span> Arranged: ${arranged}</span>
-    <span><span class="dot" style="background:var(--red)"></span> Pending: ${pending}</span>
-    ${overdue > 0 ? `<span style="color:var(--red);font-weight:600;">Overdue: ${overdue}</span>` : ''}
-    <span style="color:var(--text);">Total: ${total}</span>
-  `;
+function renderEqStats(items) {
+  const c = items.filter(i => getStatus(i) === 'completed').length;
+  const a = items.filter(i => getStatus(i) === 'arranged').length;
+  const p = items.filter(i => getStatus(i) === 'pending').length;
+  const o = items.filter(i => isOverdue(i)).length;
+  document.getElementById('stats').innerHTML =
+    `<span><span class="dot" style="background:var(--green)"></span> Completed: ${c}</span>` +
+    `<span><span class="dot" style="background:var(--orange)"></span> Arranged: ${a}</span>` +
+    `<span><span class="dot" style="background:var(--red)"></span> Pending: ${p}</span>` +
+    (o > 0 ? `<span style="color:var(--red);font-weight:600;">Overdue: ${o}</span>` : '') +
+    `<span style="color:var(--text);">Total: ${items.length}</span>`;
 }
 
 function renderCard(item) {
   const status = getStatus(item);
-  const overdue = isOverdue(item);
+  const od = isOverdue(item);
   const icon = item.resourceType === 'Truck' ? '\uD83D\uDE9A' : '\uD83D\uDCE6';
-
-  return `
-    <div class="card ${overdue ? 'overdue' : ''}">
-      <div class="status-bar ${status}"></div>
-      <div class="body">
-        <span class="resource-icon">${icon}</span>
-        <span class="resource-name">${item.resourceName || '-'}</span>
-        <span class="appointment-type ${getTypeClass(item.appointmentType)}">${item.appointmentType || '-'}</span>
-        <span class="branch">${item.branch || '-'}</span>
-        ${item.driver ? `<span class="branch" style="color:var(--cyan);">${item.driver}</span>` : ''}
-      </div>
-      <div class="meta">
-        <div>
-          <div class="date-label">Due</div>
-          <div class="date-value">${formatDate(item.dueDate)}</div>
-        </div>
-        <div>
-          <div class="date-label">Booked</div>
-          <div class="date-value">${formatDate(item.bookedDate)}</div>
-        </div>
-        <div class="badges">
-          <span class="badge badge-${status}">${status === 'completed' ? 'Done' : status === 'arranged' ? 'Arranged' : 'Pending'}</span>
-          ${overdue ? '<span class="overdue-badge">Overdue</span>' : ''}
-        </div>
+  const badge = status === 'completed' ? 'Done' : status === 'arranged' ? 'Arranged' : 'Pending';
+  return `<div class="card ${od?'overdue':''}">
+    <div class="status-bar ${status}"></div>
+    <div class="body">
+      <span class="resource-icon">${icon}</span>
+      <span class="resource-name">${item.resourceName||'-'}</span>
+      <span class="appointment-type ${getTypeClass(item.appointmentType)}">${item.appointmentType||'-'}</span>
+      <span class="branch">${item.branch||'-'}</span>
+      ${item.driver?`<span class="branch" style="color:var(--cyan);">${item.driver}</span>`:''}
+    </div>
+    <div class="meta">
+      <div><div class="date-label">Due</div><div class="date-value">${formatDate(item.dueDate)}</div></div>
+      <div><div class="date-label">Booked</div><div class="date-value">${formatDate(item.bookedDate)}</div></div>
+      <div class="badges">
+        <span class="badge badge-${status}">${badge}</span>
+        ${od?'<span class="overdue-badge">Overdue</span>':''}
       </div>
     </div>
-  `;
+  </div>`;
 }
 
 function renderResourceView(items) {
   const groups = {};
-  items.forEach(item => {
-    const key = item.resourceName || 'Unknown';
-    if (!groups[key]) groups[key] = [];
-    groups[key].push(item);
-  });
-
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const aPending = groups[a].some(i => getStatus(i) !== 'completed');
-    const bPending = groups[b].some(i => getStatus(i) !== 'completed');
-    if (aPending !== bPending) return aPending ? -1 : 1;
-    const aOverdue = groups[a].some(i => isOverdue(i));
-    const bOverdue = groups[b].some(i => isOverdue(i));
-    if (aOverdue !== bOverdue) return aOverdue ? -1 : 1;
+  items.forEach(i => { const k = i.resourceName||'Unknown'; (groups[k]||(groups[k]=[])).push(i); });
+  const keys = Object.keys(groups).sort((a,b) => {
+    const ap = groups[a].some(i => getStatus(i)!=='completed');
+    const bp = groups[b].some(i => getStatus(i)!=='completed');
+    if (ap!==bp) return ap?-1:1;
+    const ao = groups[a].some(i => isOverdue(i));
+    const bo = groups[b].some(i => isOverdue(i));
+    if (ao!==bo) return ao?-1:1;
     return a.localeCompare(b);
   });
-
-  if (sortedKeys.length === 0) {
-    return '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
-  }
-
-  return sortedKeys.map(key => {
-    const groupItems = groups[key];
-    const isCollapsed = collapsedGroups.has(key);
-    const pendingCount = groupItems.filter(i => getStatus(i) !== 'completed').length;
-
-    return `
-      <div class="group-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleGroup('${key.replace(/'/g, "\\'")}')">
-        <span class="chevron">&#9660;</span>
-        ${key}
-        <span class="count">${groupItems.length} ${pendingCount > 0 ? `| ${pendingCount} active` : ''}</span>
-      </div>
-      <div class="card-list" style="${isCollapsed ? 'display:none' : ''}">
-        ${groupItems.map(renderCard).join('')}
-      </div>
-    `;
+  if (!keys.length) return '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
+  return keys.map(k => {
+    const gi = groups[k], col = collapsedGroups.has(k);
+    const pc = gi.filter(i => getStatus(i)!=='completed').length;
+    const ek = k.replace(/'/g,"\\'");
+    return `<div class="group-header ${col?'collapsed':''}" onclick="toggleGroup('${ek}')">
+      <span class="chevron">&#9660;</span> ${k}
+      <span class="count">${gi.length}${pc>0?' | '+pc+' active':''}</span>
+    </div><div class="card-list" style="${col?'display:none':''}">${gi.map(renderCard).join('')}</div>`;
   }).join('');
 }
 
 function renderTimelineView(items) {
   const groups = {};
-  items.forEach(item => {
-    const date = item.bookedDate || item.dueDate || 'No date';
-    if (!groups[date]) groups[date] = [];
-    groups[date].push(item);
+  items.forEach(i => { const d = i.bookedDate||i.dueDate||'No date'; (groups[d]||(groups[d]=[])).push(i); });
+  const dates = Object.keys(groups).sort((a,b) => {
+    if (a==='No date') return 1; if (b==='No date') return -1; return a.localeCompare(b);
   });
-
-  const sortedDates = Object.keys(groups).sort((a, b) => {
-    if (a === 'No date') return 1;
-    if (b === 'No date') return -1;
-    return a.localeCompare(b);
-  });
-
-  if (sortedDates.length === 0) {
-    return '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
-  }
-
-  return '<div class="timeline-view">' + sortedDates.map(date => {
-    const isCollapsed = collapsedGroups.has(date);
-    const groupItems = groups[date];
-    const isToday = date === TODAY;
-    const isPast = date !== 'No date' && date < TODAY;
-
-    return `
-      <div class="day-group">
-        <div class="group-header ${isCollapsed ? 'collapsed' : ''}" onclick="toggleGroup('${date}')">
-          <span class="chevron">&#9660;</span>
-          <span class="day-label" style="${isToday ? 'color:var(--green);' : isPast ? 'color:var(--red);' : ''}">
-            ${date === 'No date' ? date : formatDateFull(date)}
-            ${isToday ? ' (TODAY)' : ''}
-          </span>
-          <span class="count">${groupItems.length}</span>
-        </div>
-        <div class="card-list" style="${isCollapsed ? 'display:none' : ''}">
-          ${groupItems.map(renderCard).join('')}
-        </div>
+  if (!dates.length) return '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
+  return '<div class="timeline-view">'+dates.map(d => {
+    const col = collapsedGroups.has(d), gi = groups[d];
+    const isToday = d===TODAY, isPast = d!=='No date'&&d<TODAY;
+    const cs = isToday?'color:var(--green);':isPast?'color:var(--red);':'';
+    return `<div class="day-group">
+      <div class="group-header ${col?'collapsed':''}" onclick="toggleGroup('${d}')">
+        <span class="chevron">&#9660;</span>
+        <span style="font-size:13px;font-weight:600;${cs}">${d==='No date'?d:formatDateFull(d)}${isToday?' (TODAY)':''}</span>
+        <span class="count">${gi.length}</span>
       </div>
-    `;
-  }).join('') + '</div>';
+      <div class="card-list" style="${col?'display:none':''}">${gi.map(renderCard).join('')}</div>
+    </div>`;
+  }).join('')+'</div>';
 }
 
-function toggleGroup(key) {
-  if (collapsedGroups.has(key)) {
-    collapsedGroups.delete(key);
-  } else {
-    collapsedGroups.add(key);
-  }
-  render();
+function toggleGroup(k) {
+  collapsedGroups.has(k)?collapsedGroups.delete(k):collapsedGroups.add(k);
+  renderEquipment();
 }
 
-function render() {
-  const items = applyFilters();
-  renderStats(items);
-  const content = document.getElementById('content');
-  content.innerHTML = currentView === 'resource'
-    ? renderResourceView(items)
-    : renderTimelineView(items);
+function renderEquipment() {
+  const items = applyEqFilters();
+  renderEqStats(items);
+  document.getElementById('eqContent').innerHTML = currentView==='resource'?renderResourceView(items):renderTimelineView(items);
 }
 
 function populateBranches() {
-  const branches = [...new Set(DATA.map(i => i.branch).filter(Boolean).filter(b => b.trim()))].sort();
-  const select = document.getElementById('branchFilter');
-  branches.forEach(b => {
-    const opt = document.createElement('option');
-    opt.value = b;
-    opt.textContent = b;
-    select.appendChild(opt);
+  const br = [...new Set(EQ_DATA.map(i=>i.branch).filter(Boolean).filter(b=>b.trim()))].sort();
+  const sel = document.getElementById('branchFilter');
+  br.forEach(b => { const o=document.createElement('option'); o.value=b; o.textContent=b; sel.appendChild(o); });
+}
+
+// ─── Resource Sheet ───
+function applyResFilters() {
+  return RES_DATA.filter(item => {
+    if (resFilters.search) {
+      const s = resFilters.search.toLowerCase();
+      if (![item.truckName, item.defaultDriver, item.status]
+        .filter(Boolean).some(v => v.toLowerCase().includes(s))) return false;
+    }
+    if (resFilters.availability==='available' && !item.available) return false;
+    if (resFilters.availability==='unavailable' && item.available) return false;
+    if (resFilters.status && item.status !== resFilters.status) return false;
+    return true;
   });
 }
 
-// ─── Event listeners ───
-document.getElementById('search').addEventListener('input', (e) => {
-  filters.search = e.target.value;
-  render();
-});
+function renderResStats(items) {
+  const avail = items.filter(i => i.available).length;
+  document.getElementById('resStats').innerHTML =
+    `<span><span class="dot avail-dot yes"></span> Available: ${avail}</span>` +
+    `<span><span class="dot avail-dot no"></span> Unavailable: ${items.length-avail}</span>` +
+    `<span style="color:var(--text);">Total: ${items.length}</span>`;
+}
 
-document.getElementById('branchFilter').addEventListener('change', (e) => {
-  filters.branch = e.target.value;
-  render();
-});
+function renderResources() {
+  const items = applyResFilters();
+  renderResStats(items);
+  if (!items.length) {
+    document.getElementById('resContent').innerHTML = '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
+    return;
+  }
+  let h = '<table class="res-table"><thead><tr><th>Truck</th><th>Available</th><th>Status</th><th>Driver</th></tr></thead><tbody>';
+  items.forEach(i => {
+    const sc = i.status ? 'res-status res-status-'+i.status.toLowerCase() : '';
+    h += `<tr>
+      <td class="truck-name">${i.truckName||'-'}</td>
+      <td><span class="avail-dot ${i.available?'yes':'no'}"></span> ${i.available?'Yes':'No'}</td>
+      <td>${i.status?'<span class="'+sc+'">'+i.status+'</span>':'-'}</td>
+      <td>${i.defaultDriver?'<span class="driver-name">'+i.defaultDriver+'</span>':'-'}</td>
+    </tr>`;
+  });
+  h += '</tbody></table>';
+  document.getElementById('resContent').innerHTML = h;
+}
+
+// ─── Event listeners ───
+document.getElementById('eqSearch').addEventListener('input', e => { eqFilters.search=e.target.value; renderEquipment(); });
+document.getElementById('branchFilter').addEventListener('change', e => { eqFilters.branch=e.target.value; renderEquipment(); });
 
 document.querySelectorAll('.filter-btn[data-filter="type"]').forEach(btn => {
   btn.addEventListener('click', () => {
-    const val = btn.dataset.value;
-    if (filters.type === val) {
-      filters.type = null;
-      btn.classList.remove('active');
-    } else {
-      document.querySelectorAll('.filter-btn[data-filter="type"]').forEach(b => b.classList.remove('active'));
-      filters.type = val;
-      btn.classList.add('active');
-    }
-    render();
+    const v=btn.dataset.value;
+    if (eqFilters.type===v) { eqFilters.type=null; btn.classList.remove('active'); }
+    else { document.querySelectorAll('.filter-btn[data-filter="type"]').forEach(b=>b.classList.remove('active')); eqFilters.type=v; btn.classList.add('active'); }
+    renderEquipment();
   });
 });
-
 document.querySelectorAll('.filter-btn[data-filter="status"]').forEach(btn => {
   btn.addEventListener('click', () => {
-    const val = btn.dataset.value;
-    if (filters.status === val) {
-      filters.status = null;
-      btn.classList.remove('active');
-    } else {
-      document.querySelectorAll('.filter-btn[data-filter="status"]').forEach(b => b.classList.remove('active'));
-      filters.status = val;
-      btn.classList.add('active');
-    }
-    render();
+    const v=btn.dataset.value;
+    if (eqFilters.status===v) { eqFilters.status=null; btn.classList.remove('active'); }
+    else { document.querySelectorAll('.filter-btn[data-filter="status"]').forEach(b=>b.classList.remove('active')); eqFilters.status=v; btn.classList.add('active'); }
+    renderEquipment();
   });
 });
-
 document.querySelectorAll('.view-toggle button').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentView = btn.dataset.view;
-    collapsedGroups.clear();
-    render();
+    document.querySelectorAll('.view-toggle button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); currentView=btn.dataset.view; collapsedGroups.clear(); renderEquipment();
   });
 });
 
-// ─── Init ───
-DATA = [{"dueDate":null,"bookedDate":"2026-02-24","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":null,"bookedDate":"2026-02-24","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NK20XUG","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-09","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YJ18 RZC","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-01-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"49","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"161B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"AY70 SFF","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-01-31","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"49","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-07","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZL","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-12","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL565","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-15","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"ME16 CVH","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-21","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"WX22 SZV","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"179B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N369","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL511","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL502","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":"2026-02-19","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YN20SSX","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-22","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX20 RGZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL537","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL581","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"G411","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P12 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"161B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"GS401","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL547","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL245","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SFK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBN","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL476","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL573","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL514","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZC","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YFO","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WU19 YDS","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YT65 TZE","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21FPZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":null,"branch":"","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-23","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NK22ZYT","branch":"LONDON GATEWAY","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL455","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL295","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL559","branch":"SOUTHAMPTON","arranged":true,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL208","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL574","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL602","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NK67 WCZ","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL566","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"125B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"EVL90","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"131","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"MEGA001","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL282","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL501","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NK20XUG","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY16 LVV","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21FRN","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL574","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YJ19 SFY","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"WX22 SZE","branch":"SOUTHAMPTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZT","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P444 BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YJC","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FPV","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SBX","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FHR","branch":"FELIXSTOWE","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBE","branch":"LONDON GATEWAY","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"V20BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"N60BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"SV66 JFG","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-24","bookedDate":"2026-02-24","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"P100 BBT","branch":"KBC BOSTON","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"5B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"123B","branch":"KBC HULL","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL535","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Truck","resourceName":"YD18 UBS","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"185","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"405B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"M60BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"168B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"168B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"58B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"V706","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL283","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY70 SDO","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"31B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"429B","branch":"KBC IMMINGHAM","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"167","branch":"PURFLEET","arranged":false,"completed":true,"driver":null},{"dueDate":"2026-02-25","bookedDate":"2026-02-05","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"Y100BBT","branch":"LONDON GATEWAY","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N364","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"V18 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"79B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBD","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"CN66 KWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N364","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N344","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N318","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"95B","branch":"KBC IMMINGHAM","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"PO70 YOP","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"192","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"BK16 VWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NCU","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"192","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG68 AUF","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-26","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"75B","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-26","bookedDate":"2026-02-26","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"M60BBT","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL595","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG66 HPY","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N356","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ70 AWP","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-27","bookedDate":null,"appointmentType":"Defect/Breakdown","resourceType":"Trailer","resourceName":"417B","branch":"KBC IMMINGHAM","arranged":true,"completed":false,"driver":"HARWOOD, MARK"},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL596","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL394","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R600BBT","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL476","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"166B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"100","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N312","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ70 AYB","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P12 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"504B","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL533","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL227","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL450","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R70BBT","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"T30BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"197B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"502B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL259","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL573","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22 SZE","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"LM66 CKP","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"CN66 KWD","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ21 FSN","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"172B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"196B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"500B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL213","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL474","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"MA21 UCT","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"T30BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P33 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"160B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"182","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"141","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N334","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"M30 BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"173B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"174B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"512B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"180","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL611","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"P14BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG66 HPY","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"164B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"189B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"427B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"WX66 WHK","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"EVL90","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N342","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"NJ21FNW","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"505B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"CE69 YMY","branch":"SOUTHAMPTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"WV65 YXY","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"R666BBT","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N322","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL229","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL496","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG67 DSY","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL276","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"PN67 HPL","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL475","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"SL281","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Trailer","resourceName":"N356","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"YT15 FKO","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":null,"appointmentType":"MOT Expiry","resourceType":"Truck","resourceName":"DG66 HWO","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-02-28","bookedDate":"2026-02-27","appointmentType":"MOT Appointment","resourceType":"Truck","resourceName":"NJ70 AYB","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"MT5","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"503B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL461","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL529","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL467","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N373","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"124B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"192B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL391","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL232","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N310","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"160B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL261","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"507B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"88B","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N357","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"426B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"25B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"97","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL217","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZR","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"N378","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"419B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL250","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL489","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N320","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"SL522","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"180","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"GL66 NHG","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N341","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"CK16 UCM","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"PO70 YRP","branch":"FELIXSTOWE","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NBF","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZP","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"NJ21 FNU","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"MEGA002","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"N338","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"GS403","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"LM66 CKC","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Trailer","resourceType":"Trailer","resourceName":"110 LOW","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WU19 YBY","branch":"KBC HULL","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DG18 JNU","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI TRAILER +12","resourceType":"Trailer","resourceName":"411B","branch":"KBC IMMINGHAM","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"YA17 NCE","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"DK20 YJH","branch":"PURFLEET","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"WX22SZO","branch":"LONDON GATEWAY","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":null,"appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"M777BBT","branch":"KBC BOSTON","arranged":false,"completed":false,"driver":null},{"dueDate":"2026-03-01","bookedDate":"2026-02-23","appointmentType":"PMI Truck","resourceType":"Truck","resourceName":"AY16 LVU","branch":"PURFLEET","arranged":true,"completed":true,"driver":null},{"dueDate":"2026-04-17","bookedDate":"2026-02-23","appointmentType":"Tacho Calibration","resourceType":"Truck","resourceName":"LM66 CKP","branch":"KBC BOSTON","arranged":true,"completed":true,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null},{"dueDate":null,"bookedDate":null,"appointmentType":null,"resourceType":null,"resourceName":null,"branch":null,"arranged":false,"completed":false,"driver":null}];
+document.getElementById('resSearch').addEventListener('input', e => { resFilters.search=e.target.value; renderResources(); });
+document.querySelectorAll('.res-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = btn.dataset.value;
+    const isAv = v==='available'||v==='unavailable';
+    if (isAv) {
+      if (resFilters.availability===v) { resFilters.availability=null; btn.classList.remove('active'); }
+      else {
+        document.querySelectorAll('.res-filter').forEach(b => { if(b.dataset.value==='available'||b.dataset.value==='unavailable') b.classList.remove('active'); });
+        resFilters.availability=v; btn.classList.add('active');
+      }
+    } else {
+      if (resFilters.status===v) { resFilters.status=null; btn.classList.remove('active'); }
+      else {
+        document.querySelectorAll('.res-filter').forEach(b => { if(b.dataset.value!=='available'&&b.dataset.value!=='unavailable') b.classList.remove('active'); });
+        resFilters.status=v; btn.classList.add('active');
+      }
+    }
+    renderResources();
+  });
+});
+
 populateBranches();
-render();
+renderEquipment();
+renderResources();
 </script>
 </body>
 </html>
