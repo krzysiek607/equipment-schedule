@@ -166,6 +166,19 @@
     .avail-dot.yes { background: var(--green); }
     .avail-dot.no { background: var(--red); }
     .driver-name { color: var(--cyan); font-size: 11px; }
+    .comment-cell { min-width: 140px; }
+    .comment-display {
+      font-size: 11px; color: var(--text-muted); cursor: pointer;
+      padding: 4px 6px; border-radius: 4px; min-height: 24px;
+      transition: background 0.15s; display: flex; align-items: center; gap: 4px;
+    }
+    .comment-display:hover { background: var(--surface); }
+    .comment-display.empty { color: #475569; font-style: italic; }
+    .comment-input {
+      background: var(--bg); border: 1px solid var(--accent); border-radius: 4px;
+      padding: 4px 6px; color: var(--text); font-size: 11px; width: 100%;
+      outline: none; font-family: inherit;
+    }
     .res-stats { display: flex; gap: 14px; font-size: 12px; color: var(--text-muted); }
     .res-stats span { display: flex; align-items: center; gap: 4px; }
 
@@ -236,6 +249,28 @@ let eqFilters = { search: '', type: null, status: null, branch: '' };
 let currentView = 'resource';
 let collapsedGroups = new Set();
 let resFilters = { search: '', availability: null, status: null };
+let comments = JSON.parse(localStorage.getItem('res-comments') || '{}');
+
+function saveComment(truckName, value) {
+  const trimmed = value.trim();
+  if (trimmed) { comments[truckName] = trimmed; }
+  else { delete comments[truckName]; }
+  localStorage.setItem('res-comments', JSON.stringify(comments));
+}
+
+function startEdit(truckName) {
+  const cell = document.getElementById('comment-' + CSS.escape(truckName));
+  if (!cell) return;
+  const current = comments[truckName] || '';
+  cell.innerHTML = '<input class="comment-input" value="' + current.replace(/"/g, '&quot;') + '" />';
+  const input = cell.querySelector('input');
+  input.focus();
+  input.addEventListener('blur', () => { saveComment(truckName, input.value); renderResources(); });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { input.blur(); }
+    if (e.key === 'Escape') { renderResources(); }
+  });
+}
 
 const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const TODAY = new Date().toISOString().slice(0, 10);
@@ -390,7 +425,8 @@ function applyResFilters() {
   return RES_DATA.filter(item => {
     if (resFilters.search) {
       const s = resFilters.search.toLowerCase();
-      if (![item.truckName, item.defaultDriver, item.status]
+      const cmt = comments[item.truckName] || '';
+      if (![item.truckName, item.defaultDriver, item.status, cmt]
         .filter(Boolean).some(v => v.toLowerCase().includes(s))) return false;
     }
     if (resFilters.availability==='available' && !item.available) return false;
@@ -415,14 +451,20 @@ function renderResources() {
     document.getElementById('resContent').innerHTML = '<div class="empty-state"><h3>No results</h3>Adjust filters to see data</div>';
     return;
   }
-  let h = '<table class="res-table"><thead><tr><th>Truck</th><th>Available</th><th>Status</th><th>Driver</th></tr></thead><tbody>';
+  let h = '<table class="res-table"><thead><tr><th>Truck</th><th>Available</th><th>Status</th><th>Driver</th><th>Comments</th></tr></thead><tbody>';
   items.forEach(i => {
     const sc = i.status ? 'res-status res-status-'+i.status.toLowerCase() : '';
+    const tn = i.truckName||'-';
+    const cmt = comments[tn] || '';
+    const cmtHtml = cmt
+      ? '<div class="comment-display" onclick="startEdit(\'' + tn.replace(/'/g,"\\'") + '\')">' + cmt + '</div>'
+      : '<div class="comment-display empty" onclick="startEdit(\'' + tn.replace(/'/g,"\\'") + '\')">+ Add note</div>';
     h += `<tr>
-      <td class="truck-name">${i.truckName||'-'}</td>
+      <td class="truck-name">${tn}</td>
       <td><span class="avail-dot ${i.available?'yes':'no'}"></span> ${i.available?'Yes':'No'}</td>
       <td>${i.status?'<span class="'+sc+'">'+i.status+'</span>':'-'}</td>
       <td>${i.defaultDriver?'<span class="driver-name">'+i.defaultDriver+'</span>':'-'}</td>
+      <td class="comment-cell" id="comment-${tn}">${cmtHtml}</td>
     </tr>`;
   });
   h += '</tbody></table>';
